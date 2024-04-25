@@ -59,7 +59,7 @@ pipeline {
                         '''
 
                         // Copy build artifacts
-                        sh "cp ${WORKSPACE}/MultiToolApi/target/*.jar ${tempDir}/" 
+                        sh "cp -f ${WORKSPACE}/MultiToolApi/target/*.jar ${tempDir}/" 
 
                         // Commit and push changes
                         sh '''
