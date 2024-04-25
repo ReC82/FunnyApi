@@ -53,9 +53,14 @@ pipeline {
                             ]
                         ])
 
+                        sh '''
+                        git clone ${env.ARTIFACT_REPO} .
+                        git checkout ${env.TARGET_BRANCH}
+                        '''
+
                         // Copy build artifacts
                         sh "cp ${WORKSPACE}/MultiToolApi/target/*.jar ${tempDir}/" 
-                        
+
                         // Commit and push changes
                         sh '''
                         git add .
