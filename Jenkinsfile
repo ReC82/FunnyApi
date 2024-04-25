@@ -40,21 +40,24 @@ pipeline {
 
         stage('Push to Artifact Repo') {
             steps {
-                script {
+                                script {
                     def tempDir = "${WORKSPACE}/temp_artifact_repo"
                     sh "mkdir -p ${tempDir}"
 
                     dir(tempDir) {
+                        // Checkout repository with credentials and ensure on a branch
                         checkout([
                             $class: 'GitSCM',
-                            branches: [[name: 'main']], 
+                            branches: [[name: "refs/heads/${env.TARGET_BRANCH}"]],
                             userRemoteConfigs: [
                                 [url: env.ARTIFACT_REPO, credentialsId: env.GIT_CREDENTIALS]
                             ]
                         ])
 
+                        // Copy build artifacts
                         sh "cp ${WORKSPACE}/MultiToolApi/target/*.jar ${tempDir}/" 
                         
+                        // Correct syntax with environment variable references
                         sh '''
                         git add .
                         git config user.email "lloyd.malfliet@gmail.com"
