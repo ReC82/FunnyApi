@@ -44,7 +44,6 @@ pipeline {
                     sh "mkdir -p ${tempDir}"
 
                     dir(tempDir) {
-                        // Checkout repository with credentials
                         checkout([
                             $class: 'GitSCM',
                             branches: [[name: 'main']], 
