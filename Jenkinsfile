@@ -45,30 +45,32 @@ pipeline {
                     sh "mkdir -p ${tempDir}"
 
                     dir(tempDir) {
-                        checkout([
-                            $class: 'GitSCM',
-                            branches: [[name: 'main']],
-                            userRemoteConfigs: [
-                                [url: env.ARTIFACT_REPO, credentialsId: env.GIT_CREDENTIALS]
-                            ]
-                        ])
+                        // Use SSH credentials from Jenkins
+                        withCredentials([
+                            sshUserPrivateKey(
+                                credentialsId: GIT_CREDENTIALS,
+                                keyFileVariable: 'SSH_KEY'  // Variable to hold the SSH key
+                            )
+                        ]) {
+                            sh """
+                                # Start SSH agent and add the SSH key
+                                eval \$(ssh-agent -s)
+                                ssh-add \$SSH_KEY
+                                ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-                        sh '''
-                        git clone ${env.ARTIFACT_REPO} .
-                        git checkout ${env.TARGET_BRANCH}
-                        git checkout ${env.TARGET_BRANCH} || git checkout -b ${env.TARGET_BRANCH}
-                        '''
+                                # Clone the repository and check out the branch
+                                git clone ${ARTIFACT_REPO} .
+                                git checkout ${TARGET_BRANCH} || git checkout -b ${TARGET_BRANCH}
 
-                        // Copy build artifacts
-                        sh "cp -f ${WORKSPACE}/MultiToolApi/target/*.jar ${tempDir}/" 
-
-                        // Commit and push changes
-                        sh '''
-                        git add *.jar
-                        git commit -m "Add new build artifacts"
-                        git push origin main
-                        '''
-                    }
+                                # Copy build artifacts
+                                cp ${WORKSPACE}/MultiToolApi/target/*.jar ${tempDir}/
+                                
+                                # Add, commit, and push changes
+                                git add .
+                                git commit -m "Add new build artifacts"
+                                git push origin ${TARGET_BRANCH}
+                            """
+                        }
                 }
             }
         }
