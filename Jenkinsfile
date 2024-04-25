@@ -6,6 +6,7 @@ pipeline {
         SENDER_EMAIL = 'jenkins@lodywood.be'
         ARTIFACT_REPO = 'git@github.com:ReC82/ArtefactRepo.git'
         GIT_CREDENTIALS = 'GitJenkins'
+        TARGET_BRANCH = 'main'
     }
 
     stages {
@@ -59,6 +60,7 @@ pipeline {
                         git config user.email "lloyd.malfliet@gmail.com"
                         git config user.name "ReC82"
                         git commit -m "Add new build artifacts"
+                        git push origin HEAD:${env.TARGET_BRANCH}
                         git push
                         '''
                     }
