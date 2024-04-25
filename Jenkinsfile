@@ -37,7 +37,6 @@ pipeline {
             }
         }        
 
-stages {
         stage('Push to Artifact Repo') {
             steps {
                 script {
@@ -70,7 +69,6 @@ stages {
             }
         }
     }
-
     post {
         always {
             emailext(
