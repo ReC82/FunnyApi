@@ -52,7 +52,7 @@ pipeline {
                             ]
                         ])
 
-                        sh "cp ${WORKSPACE}/MultiToolApi/target/* ${tempDir}/" 
+                        sh "cp ${WORKSPACE}/MultiToolApi/target/*.jar ${tempDir}/" 
                         
                         sh '''
                         git add .
