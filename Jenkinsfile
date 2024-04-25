@@ -5,6 +5,7 @@ pipeline {
         RECIPIENTS = 'lloyd.malfliet@gmail.com'
         SENDER_EMAIL = 'jenkins@lodywood.be'
         ARTIFACT_REPO = 'git@github.com:ReC82/ArtefactRepo.git'
+        GIT_CREDENTIALS = 'GitJenkins'
     }
 
     stages {
@@ -36,25 +37,30 @@ pipeline {
             }
         }        
 
-stage('Push to Artifact Repo') {
+stages {
+        stage('Push to Artifact Repo') {
             steps {
                 script {
                     def tempDir = "${WORKSPACE}/temp_artifact_repo"
                     sh "mkdir -p ${tempDir}"
-                    
+
                     dir(tempDir) {
+                        // Checkout repository with credentials
                         checkout([
                             $class: 'GitSCM',
                             branches: [[name: 'main']], 
-                            userRemoteConfigs: [[url: env.ARTIFACT_REPO]],
-                            credentialsId: 'GitJenkins' 
+                            userRemoteConfigs: [
+                                [url: env.ARTIFACT_REPO, credentialsId: env.GIT_CREDENTIALS]
+                            ]
                         ])
-                        
+
+                        // Copy build artifacts
                         sh "cp ${WORKSPACE}/target/* ${tempDir}/" 
                         
+                        // Configure Git and push changes
                         sh '''
                         git add .
-                        git config user.email "lloyd.malfliet@gmail.com" // Adjust with Jenkins user email
+                        git config user.email "lloyd.malfliet@gmail.com"
                         git config user.name "ReC82"
                         git commit -m "Add new build artifacts"
                         git push
