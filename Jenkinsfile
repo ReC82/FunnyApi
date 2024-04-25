@@ -40,31 +40,40 @@ pipeline {
 
         stage('Push to Artifact Repo') {
             steps {
-                                script {
+                script {
                     def tempDir = "${WORKSPACE}/temp_artifact_repo"
                     sh "mkdir -p ${tempDir}"
 
                     dir(tempDir) {
-                        // Checkout repository with credentials and ensure on a branch
+                        // Ensure Git checkout works as expected
                         checkout([
                             $class: 'GitSCM',
-                            branches: [[name: "refs/heads/${env.TARGET_BRANCH}"]],
+                            branches: [[name: 'main']], // Default to 'main'
                             userRemoteConfigs: [
                                 [url: env.ARTIFACT_REPO, credentialsId: env.GIT_CREDENTIALS]
                             ]
                         ])
 
+                        // Verify the current Git branch
+                        def currentBranch = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                        if (currentBranch == "HEAD") {
+                            // If in a detached HEAD state, switch to 'main'
+                            sh "git checkout main"
+                        }
+
                         // Copy build artifacts
                         sh "cp ${WORKSPACE}/MultiToolApi/target/*.jar ${tempDir}/" 
                         
-                        // Correct syntax with environment variable references
+                        // Ensure Git configurations and commit
                         sh '''
                         git add .
                         git config user.email "lloyd.malfliet@gmail.com"
                         git config user.name "ReC82"
                         git commit -m "Add new build artifacts"
-                        git push origin HEAD:${env.TARGET_BRANCH}
                         '''
+                        
+                        // Push with proper Git command
+                        sh "git push origin main" // Or replace 'main' with ${env.TARGET_BRANCH} if dynamic
                     }
                 }
             }
