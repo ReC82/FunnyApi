@@ -45,7 +45,6 @@ pipeline {
                     sh "mkdir -p ${tempDir}"
 
                     dir(tempDir) {
-                        // Ensure the repository is checked out correctly
                         checkout([
                             $class: 'GitSCM',
                             branches: [[name: 'main']],
@@ -54,21 +53,12 @@ pipeline {
                             ]
                         ])
 
-                        // Verify and switch to the correct branch
-                        sh """
-                        set -e
-                        git fetch --all
-                        git checkout main || git checkout origin/main || git checkout -b main
-                        """
-
                         // Copy build artifacts
-                        sh "cp -r ${WORKSPACE}/MultiToolApi/target/*.jar ${tempDir}/" 
+                        sh "cp ${WORKSPACE}/MultiToolApi/target/*.jar ${tempDir}/" 
                         
                         // Commit and push changes
                         sh '''
                         git add .
-                        git config user.email "lloyd.malfliet@gmail.com"
-                        git config user.name "ReC82"
                         git commit -m "Add new build artifacts"
                         git push origin main
                         '''
