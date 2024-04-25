@@ -63,7 +63,7 @@ pipeline {
 
                         // Commit and push changes
                         sh '''
-                        git add .
+                        git add *.jar
                         git commit -m "Add new build artifacts"
                         git push origin main
                         '''
