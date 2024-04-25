@@ -76,15 +76,20 @@ stage('Push to Artifact Repo') {
                          Build URL: ${env.BUILD_URL}""",
                 to: env.RECIPIENTS,
                 from: env.SENDER_EMAIL,
-                attachLog: true, // Attaches Jenkins build log
-                attachments: [
-                    [
-                        filePath: "${WORKSPACE}/build-report.txt", 
-                        fileName: "BuildReport.txt", 
-                        mimeType: "text/plain"
-                    ]
-                ]
+                attachLog: true
             )
+            script {
+                def reportPath = "${WORKSPACE}/build-report.txt"
+                def attachments = [[path: reportPath, name: "BuildReport.txt"]]
+                emailext(
+                    subject: "Build Report - ${currentBuild.result}",
+                    body: "Please find the attached build report.",
+                    to: env.RECIPIENTS,
+                    from: env.SENDER_EMAIL,
+                    attachLog: true,
+                    attachments: attachments
+                )
+            }
         }
     }
 }
