@@ -39,11 +39,9 @@ pipeline {
 stage('Push to Artifact Repo') {
             steps {
                 script {
-                    // Create a temporary directory for cloning the artifact repo
                     def tempDir = "${WORKSPACE}/temp_artifact_repo"
                     sh "mkdir -p ${tempDir}"
                     
-                    // Clone the artifact repo to the temp directory
                     dir(tempDir) {
                         checkout([
                             $class: 'GitSCM',
