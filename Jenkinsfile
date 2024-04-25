@@ -56,6 +56,7 @@ pipeline {
                         sh '''
                         git clone ${env.ARTIFACT_REPO} .
                         git checkout ${env.TARGET_BRANCH}
+                        git checkout ${env.TARGET_BRANCH} || git checkout -b ${env.TARGET_BRANCH}
                         '''
 
                         // Copy build artifacts
