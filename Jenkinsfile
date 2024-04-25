@@ -61,7 +61,6 @@ pipeline {
                         git config user.name "ReC82"
                         git commit -m "Add new build artifacts"
                         git push origin HEAD:${env.TARGET_BRANCH}
-                        git push
                         '''
                     }
                 }
