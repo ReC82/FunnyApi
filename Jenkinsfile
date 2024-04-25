@@ -67,29 +67,18 @@ stage('Push to Artifact Repo') {
         }
     }
 
-     post {
+    post {
         always {
             emailext(
                 subject: "Jenkins Build: ${currentBuild.fullDisplayName} - ${currentBuild.result}",
                 body: """Build Result: ${currentBuild.result}
                          Build Number: ${currentBuild.number}
-                         Build URL: ${env.BUILD_URL}""",
+                         Build URL: ${env.BUILD_URL}
+                         You can download the build report [here](${env.BUILD_URL}artifact/build-report.txt).""",
                 to: env.RECIPIENTS,
                 from: env.SENDER_EMAIL,
                 attachLog: true
             )
-            script {
-                def reportPath = "${WORKSPACE}/build-report.txt"
-                def attachments = [[path: reportPath, name: "BuildReport.txt"]]
-                emailext(
-                    subject: "Build Report - ${currentBuild.result}",
-                    body: "Please find the attached build report.",
-                    to: env.RECIPIENTS,
-                    from: env.SENDER_EMAIL,
-                    attachLog: true,
-                    attachments: attachments
-                )
-            }
         }
     }
 }
