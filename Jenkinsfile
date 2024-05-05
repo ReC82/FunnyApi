@@ -137,7 +137,7 @@ pipeline {
                         // Run the JMeter test on the remote machine
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${REMOTE_MACHINE} \\
-                            "jmeter -n -t ${REMOTE_TEST_PLAN_PATH} -l ${JMETER_RESULT_FILE}"
+                            "/var/lib/apache-jmeter/bin/jmeter -n -t ${REMOTE_TEST_PLAN_PATH} -l ${JMETER_RESULT_FILE}"
                         """
 
                         // Fetch the JMeter result file from the remote machine
