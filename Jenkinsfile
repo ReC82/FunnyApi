@@ -172,21 +172,20 @@ pipeline {
                         // Start OWASP ZAP in daemon mode on the remote server
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
-                            "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/home/rooty/.local/bin; zap-cli -p \${ZAP_PORT} status -t 120"
+                            "nohup \${ZAP_HOME} -daemon -port \${ZAP_PORT} > /dev/null 2>&1 &"
                         """
 
-
-                        // Wait for ZAP to be ready
+                        // Wait for ZAP to be ready (with sufficient time)
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
-                            "zap-cli -p \${ZAP_PORT} status -t 120"
+                            "export PATH=/home/rooty/.local/bin:\$PATH; zap-cli -p \${ZAP_PORT} status -t 120"
                         """
 
                         // Run a ZAP quick scan and generate a report
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
-                            "zap-cli -p \${ZAP_PORT} quick-scan --spider --ajax-spider \${ZAP_TARGET_URL} && \\
-                             zap-cli -p \${ZAP_PORT} report -o \${ZAP_REPORT_PATH} -f html"
+                            "export PATH=/home/rooty/.local/bin:\$PATH; zap-cli -p \${ZAP_PORT} quick-scan --spider --ajax-spider \${ZAP_TARGET_URL} && \\
+                            zap-cli -p \${ZAP_PORT} report -o \${ZAP_REPORT_PATH} -f html"
                         """
 
                         // Fetch the ZAP report from the remote server
