@@ -24,7 +24,7 @@ pipeline {
         // OWASP CONFIG
         ZAP_HOME = "/usr/bin/owasp-zap"  // Location where OWASP ZAP is installed
         ZAP_PORT = 8080           // Port ZAP will listen on
-        TARGET_URL = "http://www.lodywood.be"  // URL of the web application to scan
+        ZAP_TARGET_URL = "http://www.lodywood.be"  // URL of the web application to scan
         ZAP_REPORT = "zap-report.html"  
     }
 
