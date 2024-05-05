@@ -41,6 +41,12 @@ class MultiToolController {
 		return "Welcome To MoreLess User Managment";
 	}
 	
+	@GetMapping("/hello")
+	public String sayHello()
+	{
+		return "Hello !";
+	}
+	
     @GetMapping("/invert")
     public String invertPhrase(@RequestParam("phrase") String phrase,
                                @RequestParam(value = "output", defaultValue = "text") String outputFormat) throws IOException {
