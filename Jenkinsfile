@@ -24,7 +24,7 @@ pipeline {
         QC_CREDENTIALS_ID = "QualityControl"
         // OWASP CONFIG
         ZAP_HOME = "/usr/bin/owasp-zap"  // Location where OWASP ZAP is installed
-        ZAP_PORT = 80         // Port ZAP will listen on
+        ZAP_PORT = 8080         // Port ZAP will listen on
         ZAP_HOST_URL = "http://13.89.103.66/"  // URL of the web application to scan
         ZAP_REPORT = "/tmp/zap-report.html"  
     }
@@ -111,7 +111,11 @@ pipeline {
                         sh """
                         scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar \${SSH_USER}@\${WEB_SERVER}:\${REMOTE_PATH}
                         """
-
+                        // Restart the service on the remote server
+                        sh """
+                        ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${WEB_SERVER} \\
+                            "sudo systemctl restart moreless_api"
+                        """
                     }
                 }
             }

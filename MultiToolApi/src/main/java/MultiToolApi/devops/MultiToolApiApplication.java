@@ -41,10 +41,10 @@ class MultiToolController {
 		return "Welcome To MoreLess User Managment";
 	}
 	
-	@GetMapping("/hello")
+	@GetMapping("/hellolesfous")
 	public String sayHello()
 	{
-		return "Hello !";
+		return "Hello Les Fous!";
 	}
 	
     @GetMapping("/invert")
