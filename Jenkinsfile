@@ -70,6 +70,7 @@ pipeline {
                                 ssh-keyscan github.com >> ~/.ssh/known_hosts
                                 # Remove any existing local dir
                                 rm -rf MultiToolApi
+
                                 # Clone the repository and check out the branch
                                 git clone ${ARTIFACT_REPO} .
                                 git checkout ${TARGET_BRANCH} || git checkout -b ${TARGET_BRANCH}
@@ -159,7 +160,7 @@ pipeline {
                     emailext(
                         subject: "JMeter Test Report",
                         body: """
-                        The JMeter test has completed. Please find the attached report.
+                        JMeter test completed. Please find the attached report.
                         """,
                         to: env.RECIPIENTS, 
                         attachLog: true,
