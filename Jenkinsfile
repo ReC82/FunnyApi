@@ -24,7 +24,7 @@ pipeline {
         QC_CREDENTIALS_ID = "QualityControl"
         // OWASP CONFIG
         ZAP_HOME = "/usr/bin/owasp-zap"  // Location where OWASP ZAP is installed
-        ZAP_PORT = 8080           // Port ZAP will listen on
+        ZAP_PORT = 80         // Port ZAP will listen on
         ZAP_HOST_URL = "http://13.89.103.66/"  // URL of the web application to scan
         ZAP_REPORT = "/tmp/zap-report.html"  
     }
