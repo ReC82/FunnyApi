@@ -19,6 +19,11 @@ pipeline {
         JMETER_RESULT_FILE = "/tmp/jmeter-result.jtl"
         REMOTE_MACHINE = "10.1.5.4"
         QC_CREDENTIALS_ID = "QualityControl"
+        // OWASP CONFIG
+        ZAP_HOME = "/usr/bin/owasp-zap"  // Location where OWASP ZAP is installed
+        ZAP_PORT = 80            // Port ZAP will listen on
+        TARGET_URL = "http://www.lodywood.be"  // URL of the web application to scan
+        ZAP_REPORT = "zap-report.html"  // Report file name
     }
 
     stages {
@@ -154,21 +159,27 @@ pipeline {
             }
         }
 
-        stage('Send JMeter Report via Email') {
-            steps {
-                script {
-                    emailext(
-                        subject: "JMeter Test Report",
-                        body: """
-                        JMeter test completed. Please find the attached report.
-                        """,
-                        to: env.RECIPIENTS, 
-                        attachLog: true,
-                        attachmentsPattern: env.JMETER_RESULT_FILE
-                    )
+            stage('Send JMeter Report via Email') {
+                steps {
+                    script {
+                        def resultFile = env.JMETER_RESULT_FILE  // Ensure the variable is set correctly
+
+                        if (!fileExists(resultFile)) {
+                            error "JMeter result file not found: ${resultFile}"
+                        }
+
+                        emailext(
+                            subject: "JMeter Test Report",
+                            body: """
+                            JMeter test completed. Please find the attached report.
+                            """,
+                            to: env.RECIPIENTS, 
+                            attachLog: true,
+                            attachmentsPattern: env.resultFile
+                        )
+                    }
                 }
             }
-        }
 
     }
 
