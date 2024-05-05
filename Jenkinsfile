@@ -16,6 +16,7 @@ pipeline {
         TARGET_BRANCH = 'main'
         // WEB API CONFIG
         WEB_CRENDENTIALS_ID = "Production"
+        REMOTE_PATH="/var/www/api/moreless_api.jar"
         // JMETER CONFIG
         JMETER_TEST_PLAN = "MoreLessApi.jmx"
         REMOTE_TEST_PLAN_PATH = "/tmp/MoreLessApi.jmx"
