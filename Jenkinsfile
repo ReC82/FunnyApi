@@ -172,7 +172,7 @@ pipeline {
                         // Start OWASP ZAP in daemon mode on the remote server
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
-                            "\${ZAP_HOME} -daemon -port \${ZAP_PORT}"
+                            "nohup \${ZAP_HOME} -daemon -port \${ZAP_PORT} > /dev/null 2>&1 &"
                         """
 
                         // Wait for ZAP to be ready
