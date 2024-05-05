@@ -171,10 +171,10 @@ pipeline {
                     )]) {
                         // Start OWASP ZAP in daemon mode on the remote server
                         sh """
-                            export PATH="$PATH:/home/rooty/.local/bin"
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
-                            "nohup \${ZAP_HOME} -daemon -port \${ZAP_PORT} > /dev/null 2>&1 &"
+                            "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/home/rooty/.local/bin; zap-cli -p \${ZAP_PORT} status -t 120"
                         """
+
 
                         // Wait for ZAP to be ready
                         sh """
