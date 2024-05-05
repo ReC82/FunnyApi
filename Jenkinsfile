@@ -74,6 +74,29 @@ pipeline {
                 }
             }
         }
+
+        stage('JMeter Test') {
+            steps {
+                script {
+                    def jmeterPath = env.JMETER_PATH
+                    def testPlan = env.JMETER_TEST_PLAN
+                    def resultFile = "jmeter-result.jtl"  // JTL is a common result file format for JMeter
+
+                    // Run the JMeter test
+                    sh """
+                        ${jmeterPath}/bin/jmeter -n -t ${testPlan} -l ${resultFile}  # -n is for non-GUI mode
+                    """
+
+                    // Check if the result file is created
+                    if (!fileExists(resultFile)) {
+                        error "JMeter test failed: No result file created."
+                    }
+
+                    // Archive the JMeter result for future reference
+                    archiveArtifacts artifacts: resultFile, onlyIfSuccessful: true
+                }
+            }
+        }
     }
 
     post {
