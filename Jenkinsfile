@@ -24,7 +24,7 @@ pipeline {
         // OWASP CONFIG
         ZAP_HOME = "/usr/bin/owasp-zap"  // Location where OWASP ZAP is installed
         ZAP_PORT = 8080           // Port ZAP will listen on
-        ZAP_TARGET_URL = "https://hackxpert.com/"  // URL of the web application to scan
+        ZAP_HOST_URL = "https://hackxpert.com/"  // URL of the web application to scan
         ZAP_REPORT = "zap-report.html"  
     }
 
@@ -172,25 +172,12 @@ pipeline {
                         // Start OWASP ZAP in daemon mode on the remote server
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
-                            "nohup \${ZAP_HOME} -daemon -port \${ZAP_PORT} > /dev/null 2>&1 &"
+                            "owasp-zap -port 8081 -cmd -quickurl \$ZAP_HOST_URL -quickout \$ZAP_REPORT"
                         """
-
-                        // Wait for ZAP to be ready (with sufficient time)
-                        sh """
-                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
-                            "export PATH=/home/rooty/.local/bin:\$PATH; zap-cli -p \${ZAP_PORT} status -t 120"
-                        """
-
-                        // Run a ZAP quick scan and generate a report
-                        sh """
-                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
-                            "export PATH=/home/rooty/.local/bin:\$PATH; zap-cli -p \${ZAP_PORT} quick-scan --spider --ajax-spider \${ZAP_TARGET_URL} && \\
-                            zap-cli -p \${ZAP_PORT} report -o \${ZAP_REPORT_PATH} -f html"
-                        """
-
+                        
                         // Fetch the ZAP report from the remote server
                         sh """
-                            scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE}:\${ZAP_REPORT_PATH} .
+                            scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE}:\${ZAP_REPORT} .
                         """
 
                         if (!fileExists("zap-report.html")) {
