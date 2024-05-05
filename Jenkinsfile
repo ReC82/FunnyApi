@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        labels: "java"
+    }
 
     environment {
         // EMAIL CONFIG
@@ -93,11 +95,11 @@ pipeline {
                         keyFileVariable: 'SSH_KEY_FILE',                        
                         usernameVariable: 'SSH_USER'
                     )]) {
-                        sh 'ssh-keyscan 10.10.2.4 >> ~/.ssh/known_hosts'
+                        sh 'ssh-keyscan \$REMOTE_MACHINE >> ~/.ssh/known_hosts'
                         sh 'pwd'
                         echo "Another tRY"
                         sh """
-                        scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE target/morelessapi.jar \${SSH_USER}@\${REMOTE_SERVER}:\${REMOTE_PATH}
+                        scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE target/morelessapi.jar \${SSH_USER}@\${REMOTE_MACHINE}:\${REMOTE_PATH}
                         """
 
                     }
