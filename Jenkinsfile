@@ -9,6 +9,8 @@ pipeline {
         ARTIFACT_REPO = 'git@github.com:ReC82/ArtefactRepo.git'
         GIT_CREDENTIALS = 'GitJenkins'
         TARGET_BRANCH = 'main'
+        // WEB API CONFIG
+        WEB_CRENDENTIALS_ID = "Production"
         // JMETER CONFIG
         JMETER_TEST_PLAN = "MoreLessApi.jmx"
         REMOTE_TEST_PLAN_PATH = "/tmp/MoreLessApi.jmx"
@@ -82,6 +84,26 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to Remote Server') {
+            steps {
+                script {
+                    withCredentials([sshUserPrivateKey(
+                        credentialsId: env.WEB_CRENDENTIALS_ID,
+                        keyFileVariable: 'SSH_KEY_FILE',                        
+                        usernameVariable: 'SSH_USER'
+                    )]) {
+                        sh 'ssh-keyscan 10.10.2.4 >> ~/.ssh/known_hosts'
+                        sh 'pwd'
+                        echo "Another tRY"
+                        sh """
+                        scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE target/morelessapi.jar \${SSH_USER}@\${REMOTE_SERVER}:\${REMOTE_PATH}
+                        """
+
+                    }
+                }
+            }
+        }        
 
         stage('Transfer Test Plan to Remote Machine') {
             steps {
