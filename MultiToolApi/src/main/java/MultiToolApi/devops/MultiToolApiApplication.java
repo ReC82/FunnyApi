@@ -35,6 +35,12 @@ public class MultiToolApiApplication {
 @RestController
 class MultiToolController {
 
+	@GetMapping("/")
+	public String index()
+	{
+		return "Welcome To MoreLess User Managment";
+	}
+	
     @GetMapping("/invert")
     public String invertPhrase(@RequestParam("phrase") String phrase,
                                @RequestParam(value = "output", defaultValue = "text") String outputFormat) throws IOException {
