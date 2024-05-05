@@ -25,7 +25,7 @@ pipeline {
         ZAP_HOME = "/usr/bin/owasp-zap"  // Location where OWASP ZAP is installed
         ZAP_PORT = 8080           // Port ZAP will listen on
         ZAP_HOST_URL = "https://hackxpert.com/"  // URL of the web application to scan
-        ZAP_REPORT = "zap-report.html"  
+        ZAP_REPORT = "/tmp/zap-report.html"  
     }
 
     stages {
