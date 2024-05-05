@@ -161,67 +161,48 @@ pipeline {
             }
         }
 
-    
-        stage('Run OWASP ZAP Scan on Remote Server') {
+        stage('Run OWASP ZAP Scan') {
             steps {
                 script {
-                    withCredentials([
-                        sshUserPrivateKey(
-                            credentialsId: env.QC_CREDENTIALS_ID,
-                            keyFileVariable: 'SSH_KEY',
-                            usernameVariable: 'SSH_USER'
-                        )
-                    ]) {
+                    withCredentials([sshUserPrivateKey(
+                        credentialsId: QC_CREDENTIALS_ID,
+                        keyFileVariable: 'SSH_KEY_FILE',
+                        usernameVariable: 'SSH_USER'
+                    )]) {
                         // Start OWASP ZAP in daemon mode on the remote server
                         sh """
-                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \${SSH_USER}@\${DYN_TEST_MACHINE} \\
-                            "\${ZAP_PATH}/zap.sh -daemon -port \${ZAP_PORT}"
+                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
+                            "\${ZAP_HOME} -daemon -port \${ZAP_PORT}"
                         """
 
                         // Wait for ZAP to be ready
                         sh """
-                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \${SSH_USER}@\${DYN_TEST_MACHINE} \\
+                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
                             "zap-cli -p \${ZAP_PORT} status -t 120"
                         """
 
                         // Run a ZAP quick scan and generate a report
                         sh """
-                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \${SSH_USER}@\${DYN_TEST_MACHINE} \\
+                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
                             "zap-cli -p \${ZAP_PORT} quick-scan --spider --ajax-spider \${ZAP_TARGET_URL} && \\
                              zap-cli -p \${ZAP_PORT} report -o \${ZAP_REPORT_PATH} -f html"
                         """
 
                         // Fetch the ZAP report from the remote server
                         sh """
-                            scp -o StrictHostKeyChecking=no -i \$SSH_KEY \${SSH_USER}@\${DYN_TEST_MACHINE}:\${ZAP_REPORT_PATH} .
+                            scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE}:\${ZAP_REPORT_PATH} .
                         """
 
-                        // Check if the report file was retrieved
                         if (!fileExists("zap-report.html")) {
                             error "OWASP ZAP report not found after retrieval."
                         }
 
-                        // Archive the report in Jenkins
                         archiveArtifacts artifacts: "zap-report.html", onlyIfSuccessful: true
                     }
                 }
             }
         }
-
-        stage('Send ZAP Report via Email') {
-            steps {
-                emailext(
-                    subject: "OWASP ZAP Security Report",
-                    body: """
-                        OWASP ZAP security scan completed. Please find the attached report.
-                    """,
-                    to: "env.RECIPIENTS",  // Adjust to the correct recipient
-                    attachmentsPattern: "zap-report.html",
-                    attachLog: true
-                )
-            }
-        }               
-
+  
         stage('Send JMeter Report via Email') {
             steps {
                 script {
