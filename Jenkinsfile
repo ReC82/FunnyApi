@@ -152,10 +152,10 @@ pipeline {
                             "/var/lib/apache-jmeter/bin/jmeter -n -t ${REMOTE_TEST_PLAN_PATH} -l ${JMETER_RESULT_FILE}"
                         """
 
-                         sh """
+                        /* sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
                             "/var/lib/apache-jmeter/bin/jmeter -g ${JMETER_RESULT_FILE} -o jmeter_output.html"
-                        """
+                        """*/
                         // ./jmeter.sh -n -t path/test_name -l path/file_name.jtl -e -o path/file_name
                         // Fetch the JMeter result file from the remote machine
                         sh """
