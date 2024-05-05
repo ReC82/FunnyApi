@@ -19,7 +19,7 @@ pipeline {
         REMOTE_PATH="/var/www/api/moreless_api.jar"
         // JMETER CONFIG
         JMETER_TEST_PLAN = "FunnyApi.jmx"
-        REMOTE_TEST_PLAN_PATH = "/tmp/MoreLessApi.jmx"
+        REMOTE_TEST_PLAN_PATH = "/tmp/FunnyApi.jmx"
         JMETER_RESULT_FILE = "jmeter-result.jtl"
         QC_CREDENTIALS_ID = "QualityControl"
         // OWASP CONFIG
