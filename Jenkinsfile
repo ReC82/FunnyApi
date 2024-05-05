@@ -76,7 +76,7 @@ pipeline {
                                 git checkout ${TARGET_BRANCH} || git checkout -b ${TARGET_BRANCH}
 
                                 # Copy build artifacts
-                                cp ${WORKSPACE}/MultiToolApi/target/*.jar .
+                                cp ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar .
 
                                 # Add, commit, and push changes
                                 git add .
@@ -101,7 +101,7 @@ pipeline {
                         sh 'pwd'
                         echo "Another tRY"
                         sh """
-                        scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE target/morelessapi.jar \${SSH_USER}@\${REMOTE_MACHINE}:\${REMOTE_PATH}
+                        scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar \${SSH_USER}@\${REMOTE_MACHINE}:\${REMOTE_PATH}
                         """
 
                     }
