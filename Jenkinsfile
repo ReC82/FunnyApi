@@ -2,11 +2,19 @@ pipeline {
     agent any
 
     environment {
+        // EMAIL CONFIG
         RECIPIENTS = 'lloyd.malfliet@gmail.com'
         SENDER_EMAIL = 'jenkins@lodywood.be'
+        // GIT CONFIG
         ARTIFACT_REPO = 'git@github.com:ReC82/ArtefactRepo.git'
         GIT_CREDENTIALS = 'GitJenkins'
         TARGET_BRANCH = 'main'
+        // JMETER CONFIG
+        JMETER_TEST_PLAN = "MoreLessApi.jmx"
+        REMOTE_TEST_PLAN_PATH = "/tmp/MoreLessApi.jmx"
+        JMETER_RESULT_FILE = "/tmp/jmeter-result.jtl"
+        REMOTE_MACHINE = "10.1.5.4"
+        QC_CREDENTIALS_ID = "QualityControl"
     }
 
     stages {
@@ -75,25 +83,47 @@ pipeline {
             }
         }
 
-        stage('JMeter Test') {
+        stage('Transfer Test Plan to Remote Machine') {
             steps {
                 script {
-                    def jmeterPath = env.JMETER_PATH
-                    def testPlan = env.JMETER_TEST_PLAN
-                    def resultFile = "jmeter-result.jtl"  // JTL is a common result file format for JMeter
-
-                    // Run the JMeter test
-                    sh """
-                        ${jmeterPath}/bin/jmeter -n -t ${testPlan} -l ${resultFile}  # -n is for non-GUI mode
-                    """
-
-                    // Check if the result file is created
-                    if (!fileExists(resultFile)) {
-                        error "JMeter test failed: No result file created."
+                    withCredentials([sshUserPrivateKey(
+                        credentialsId: env.QC_CREDENTIALS_ID,
+                        keyFileVariable: 'SSH_KEY_FILE',
+                        usernameVariable: 'SSH_USER'
+                    )]) {
+                        // Copy the JMeter test plan to the remote machine
+                        sh """
+                            scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE ${JMETER_TEST_PLAN} \${SSH_USER}@\${REMOTE_MACHINE}:${REMOTE_TEST_PLAN_PATH}
+                        """
                     }
+                }
+            }
+        }
 
-                    // Archive the JMeter result for future reference
-                    archiveArtifacts artifacts: resultFile, onlyIfSuccessful: true
+        stage('Run JMeter Test on Remote Machine') {
+            steps {
+                script {
+                    withCredentials([sshUserPrivateKey(
+                        credentialsId: env.QC_CREDENTIALS_ID,
+                        keyFileVariable: 'SSH_KEY_FILE',
+                        usernameVariable: 'SSH_USER'
+                    )]) {
+                        // Run the JMeter test on the remote machine
+                        sh """
+                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${REMOTE_MACHINE} \\
+                            "jmeter -n -t ${REMOTE_TEST_PLAN_PATH} -l ${JMETER_RESULT_FILE}"
+                        """
+
+                        // Fetch the JMeter result file from the remote machine
+                        sh """
+                            scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${REMOTE_MACHINE}:${JMETER_RESULT_FILE} .
+                        """
+
+                        // Check if the result file was retrieved
+                        if (!fileExists("jmeter-result.jtl")) {
+                            error "JMeter result file not found after retrieval."
+                        }
+                    }
                 }
             }
         }
