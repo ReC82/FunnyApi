@@ -68,7 +68,8 @@ pipeline {
                                 eval \$(ssh-agent -s)
                                 ssh-add \$SSH_KEY
                                 ssh-keyscan github.com >> ~/.ssh/known_hosts
-
+                                # Remove any existing local dir
+                                rm -rf MultiToolApi
                                 # Clone the repository and check out the branch
                                 git clone ${ARTIFACT_REPO} .
                                 git checkout ${TARGET_BRANCH} || git checkout -b ${TARGET_BRANCH}
@@ -151,6 +152,23 @@ pipeline {
                 }
             }
         }
+
+        stage('Send JMeter Report via Email') {
+            steps {
+                script {
+                    emailext(
+                        subject: "JMeter Test Report",
+                        body: """
+                        The JMeter test has completed. Please find the attached report.
+                        """,
+                        to: env.RECIPIENTS, 
+                        attachLog: true,
+                        attachmentsPattern: env.JMETER_RESULT_FILE
+                    )
+                }
+            }
+        }
+
     }
 
     post {
