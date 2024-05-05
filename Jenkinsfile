@@ -160,7 +160,7 @@ pipeline {
             }
         }
 
-    stages {
+    
         stage('Run OWASP ZAP Scan on Remote Server') {
             steps {
                 script {
@@ -243,7 +243,7 @@ pipeline {
             }
         }
 
-    }
+    
 
     post {
         always {
