@@ -25,7 +25,7 @@ pipeline {
         // OWASP CONFIG
         ZAP_HOME = "/usr/bin/owasp-zap"  // Location where OWASP ZAP is installed
         ZAP_PORT = 8080           // Port ZAP will listen on
-        ZAP_HOST_URL = "https://hackxpert.com/"  // URL of the web application to scan
+        ZAP_HOST_URL = "http://13.89.103.66/"  // URL of the web application to scan
         ZAP_REPORT = "/tmp/zap-report.html"  
     }
 
@@ -201,22 +201,22 @@ pipeline {
                     }
 
                     emailext(
-                        subject: "JMeter Test Report",
+                        subject: "Test Reports",
                         body: """
-                        JMeter test completed. Please find the attached report.
+                        Tests completed. Please find the attached report.
                         """,
                         to: env.RECIPIENTS, 
                         attachLog: true,
-                        attachmentsPattern: resultFile
+                        attachmentsPattern: "${resultFile},zap-report.html"
                     )
                 }
             }
         }   
     }
     post {
-        always {
+        failure {
             emailext(
-                subject: "Jenkins Build: ${currentBuild.fullDisplayName} - ${currentBuild.result}",
+                subject: "Jenkins Build Failed: ${currentBuild.fullDisplayName} - ${currentBuild.result}",
                 body: """
 Build Result: ${currentBuild.result}
 Build Number: ${currentBuild.number}
