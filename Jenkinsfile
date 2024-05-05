@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        labels: "java"
+        label "java"
     }
 
     environment {
