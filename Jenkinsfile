@@ -194,7 +194,7 @@ pipeline {
         stage('Send JMeter Report via Email') {
             steps {
                 script {
-                    def resultFile = env.JMETER_RESULT_FILE  // Ensure the variable is set correctly
+                    def resultFile = env.JMETER_RESULT_FILE
 
                     if (!fileExists(resultFile)) {
                         error "JMeter result file not found: ${resultFile}"
@@ -207,7 +207,7 @@ pipeline {
                         """,
                         to: env.RECIPIENTS, 
                         attachLog: true,
-                        attachmentsPattern: env.resultFile
+                        attachmentsPattern: resultFile
                     )
                 }
             }
