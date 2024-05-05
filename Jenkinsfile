@@ -18,7 +18,7 @@ pipeline {
         WEB_CRENDENTIALS_ID = "Production"
         REMOTE_PATH="/var/www/api/moreless_api.jar"
         // JMETER CONFIG
-        JMETER_TEST_PLAN = "MoreLessApi.jmx"
+        JMETER_TEST_PLAN = "FunnyApi.jmx"
         REMOTE_TEST_PLAN_PATH = "/tmp/MoreLessApi.jmx"
         JMETER_RESULT_FILE = "jmeter-result.jtl"
         QC_CREDENTIALS_ID = "QualityControl"
@@ -149,9 +149,9 @@ pipeline {
                         // Run the JMeter test on the remote machine
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
-                            "/var/lib/apache-jmeter/bin/jmeter -n -t ${REMOTE_TEST_PLAN_PATH} -l ${JMETER_RESULT_FILE}"
+                            "/var/lib/apache-jmeter/bin/jmeter -n -t ${REMOTE_TEST_PLAN_PATH} -l ${JMETER_RESULT_FILE} -e -o ${JMETER_RESULT_FILE}.html"
                         """
-
+                        // ./jmeter.sh -n -t path/test_name -l path/file_name.jtl -e -o path/file_name
                         // Fetch the JMeter result file from the remote machine
                         sh """
                             scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE}:${JMETER_RESULT_FILE} .
