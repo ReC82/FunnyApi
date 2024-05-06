@@ -84,7 +84,9 @@ pipeline {
                                 git checkout ${TARGET_BRANCH} || git checkout -b ${TARGET_BRANCH}
 
                                 # Copy build artifacts
-                                cp ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar .
+                                timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
+                                source_file="${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar"
+                                cp "$source_file" "./$new_file_name"
 
                                 # Add, commit, and push changes
                                 git add .
@@ -97,7 +99,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Remote Server') {
+        stage('Deploy to Web Node and restart the service') {
             steps {
                 script {
                     withCredentials([sshUserPrivateKey(
@@ -111,7 +113,7 @@ pipeline {
                         sh """
                         scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar \${SSH_USER}@\${WEB_SERVER}:\${REMOTE_PATH}
                         """
-                        // Restart the service on the remote server
+
                         sh """
                         ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${WEB_SERVER} \\
                             "sudo systemctl restart moreless_api"
@@ -121,7 +123,7 @@ pipeline {
             }
         }        
 
-        stage('Transfer Test Plan to Remote Machine') {
+        stage('Transfer Test Plan to Quality Control') {
             steps {
                 script {
                     withCredentials([sshUserPrivateKey(
@@ -129,7 +131,7 @@ pipeline {
                         keyFileVariable: 'SSH_KEY_FILE',
                         usernameVariable: 'SSH_USER'
                     )]) {
-                        // Copy the JMeter test plan to the remote machine
+                        
                         sh """
                             scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE ${JMETER_TEST_PLAN} \${SSH_USER}@\${DYN_TEST_MACHINE}:${REMOTE_TEST_PLAN_PATH}
                         """
@@ -138,7 +140,7 @@ pipeline {
             }
         }
 
-        stage('Run JMeter Test on Remote Machine') {
+        stage('Run JMeter Test on Quality Control') {
             steps {
                 script {
                     withCredentials([sshUserPrivateKey(
@@ -146,7 +148,7 @@ pipeline {
                         keyFileVariable: 'SSH_KEY_FILE',
                         usernameVariable: 'SSH_USER'
                     )]) {
-                        // Run the JMeter test on the remote machine
+                        
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
                             "/var/lib/apache-jmeter/bin/jmeter -n -t ${REMOTE_TEST_PLAN_PATH} -l ${JMETER_RESULT_FILE}"
@@ -161,8 +163,7 @@ pipeline {
                         sh """
                             scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE}:${JMETER_RESULT_FILE} .
                         """
-
-                        // Check if the result file was retrieved
+                        
                         if (!fileExists("jmeter-result.jtl")) {
                             error "JMeter result file not found after retrieval."
                         }
@@ -179,13 +180,12 @@ pipeline {
                         keyFileVariable: 'SSH_KEY_FILE',
                         usernameVariable: 'SSH_USER'
                     )]) {
-                        // Start OWASP ZAP in daemon mode on the remote server
+                        
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE} \\
                             "owasp-zap -port 8081 -cmd -quickurl \$ZAP_HOST_URL -quickout \$ZAP_REPORT"
                         """
                         
-                        // Fetch the ZAP report from the remote server
                         sh """
                             scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${DYN_TEST_MACHINE}:\${ZAP_REPORT} .
                         """
@@ -210,7 +210,7 @@ pipeline {
                     }
 
                     emailext(
-                        subject: "Test Reports",
+                        subject: "Jmeter And Zap Report",
                         body: """
                         Tests completed. Please find the attached report.
                         """,
