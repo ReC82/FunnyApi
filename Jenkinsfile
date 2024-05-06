@@ -113,8 +113,7 @@ pipeline {
                         echo "Another tRY"
 
                         sh """
-                        new_jar="MultiToolApi-0.1_\${TIMESTAMP}.jar"
-                        scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE ${WORKSPACE}/MultiToolApi/target/\${new_jar} \${SSH_USER}@\${WEB_SERVER}:\${REMOTE_PATH}
+                        scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar \${SSH_USER}@\${WEB_SERVER}:\${REMOTE_PATH}
                         """
 
                         sh """
