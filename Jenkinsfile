@@ -85,9 +85,9 @@ pipeline {
 
                                 # Copy build artifacts
                                 timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
-                                source_file="${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar"
-                                cp "$source_file" "./$new_file_name"
-
+                                
+                                cp ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar ./MultiToolApi-0.1_${timestamp}.jar
+                                
                                 # Add, commit, and push changes
                                 git add .
                                 git commit -m "Add new build artifacts"
