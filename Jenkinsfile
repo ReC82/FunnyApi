@@ -8,7 +8,7 @@ pipeline {
         DYN_TEST_MACHINE = "10.1.5.4"
         WEB_SERVER="10.10.1.4"
         // EMAIL CONFIG
-        RECIPIENTS = 'lloyd.malfliet@gmail.com'
+        RECIPIENTS = 'lody.devops@gmail.com'
         SENDER_EMAIL = 'jenkins@lodywood.be'
         // GIT CONFIG
         TIMESTAMP = sh(script: 'date +"%Y-%m-%d_%H-%M-%S"', returnStdout: true).trim()
@@ -111,8 +111,10 @@ pipeline {
                         sh 'ssh-keyscan \$WEB_SERVER >> ~/.ssh/known_hosts'
                         sh 'pwd'
                         echo "Another tRY"
+
                         sh """
-                        scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar \${SSH_USER}@\${WEB_SERVER}:\${REMOTE_PATH}
+                        new_jar="MultiToolApi-0.1_\${TIMESTAMP}.jar"
+                        scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE ${WORKSPACE}/MultiToolApi/target/\${new_jar} \${SSH_USER}@\${WEB_SERVER}:\${REMOTE_PATH}
                         """
 
                         sh """
