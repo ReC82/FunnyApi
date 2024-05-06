@@ -191,7 +191,7 @@ pipeline {
                         """
 
                         if (!fileExists("zap-report.html")) {
-                            error "OWASP ZAP report not found."
+                            error "OWASP ZAP : report not found."
                         }
 
                         archiveArtifacts artifacts: "zap-report.html", onlyIfSuccessful: true
