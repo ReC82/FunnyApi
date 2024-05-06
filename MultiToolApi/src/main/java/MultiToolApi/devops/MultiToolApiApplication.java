@@ -1,7 +1,6 @@
 package MultiToolApi.devops;
 
 import java.io.BufferedReader;
-import java.util.Random;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -57,25 +56,7 @@ class MultiToolController {
         String invertedPhrase = new StringBuilder(phrase).reverse().toString();
         return generateResponse("Inverted Phrase: " + invertedPhrase, outputFormat);
     }
-    
-    @GetMapping("/randomNum")
-    public String randomNum(
-        @RequestParam(value = "min", defaultValue = "1") Integer min,
-        @RequestParam(value = "max", defaultValue = "100") Integer max,
-        @RequestParam(value = "output", defaultValue = "text") String outputFormat
-    ) throws IOException {
-        if (min > max) {
-            return generateErrorMessage("The minimum value cannot be greater than the maximum value.", outputFormat);
-        }
-        
-        int randomNumber = getRandomNumber(min, max);
 
-        return generateResponse(
-            String.format("Random number between %d and %d: %d", min, max, randomNumber),
-            outputFormat
-        );
-    }
-    
     @GetMapping("/f2c")
     public String fahrenheitToCelsius(@RequestParam("fahrenheit") Double fahrenheit,
                                       @RequestParam(value = "output", defaultValue = "text") String outputFormat) throws IOException {
@@ -187,11 +168,5 @@ class MultiToolController {
             // Generate response using generateResponse method
             return generateResponse(content, outputFormat);
         }
-    }
-    
-        // Method to generate a random number between a given min and max
-    private int getRandomNumber(int min, int max) {
-        Random random = new Random();
-        return random.nextInt(max - min + 1) + min;
     }
 }
