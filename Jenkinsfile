@@ -11,6 +11,7 @@ pipeline {
         RECIPIENTS = 'lloyd.malfliet@gmail.com'
         SENDER_EMAIL = 'jenkins@lodywood.be'
         // GIT CONFIG
+        TIMESTAMP = sh(script: 'date +"%Y-%m-%d_%H-%M-%S"', returnStdout: true).trim()
         ARTIFACT_REPO = 'git@github.com:ReC82/ArtefactRepo.git'
         GIT_CREDENTIALS = 'GitJenkins'
         TARGET_BRANCH = 'main'
@@ -83,8 +84,10 @@ pipeline {
                                 git clone ${ARTIFACT_REPO} .
                                 git checkout ${TARGET_BRANCH} || git checkout -b ${TARGET_BRANCH}
 
+                                new_jar="MultiToolApi-0.1_\${TIMESTAMP}.jar"
+
                                 # Copy build artifacts
-                                cp ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar .
+                                cp ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar "\${new_jar}"
 
                                 # Add, commit, and push changes
                                 git add .
