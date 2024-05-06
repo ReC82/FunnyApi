@@ -84,10 +84,8 @@ pipeline {
                                 git checkout ${TARGET_BRANCH} || git checkout -b ${TARGET_BRANCH}
 
                                 # Copy build artifacts
-                                timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
-                                
-                                cp ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar ./MultiToolApi-0.1_${timestamp}.jar
-                                
+                                cp ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar .
+
                                 # Add, commit, and push changes
                                 git add .
                                 git commit -m "Add new build artifacts"
