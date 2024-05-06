@@ -44,7 +44,7 @@ class MultiToolController {
 	@GetMapping("/hello")
 	public String sayHello()
 	{
-		return "Hello Les Fous!";
+		return "Hello Les Devops!";
 	}
 	
     @GetMapping("/invert")
