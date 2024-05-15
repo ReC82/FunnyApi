@@ -108,20 +108,21 @@ pipeline {
                         keyFileVariable: 'SSH_KEY_FILE',                        
                         usernameVariable: 'SSH_USER'
                     )]) {
-
-                        def scpLogFile = "${WORKSPACE}/scp.log"
-                        def sshLogFile = "${WORKSPACE}/ssh.log"
+                        
+                        def copyLogFile = "${WORKSPACE}/copy.log"
 
                         sh 'ssh-keyscan \$WEB_SERVER >> ~/.ssh/known_hosts'
 
-                        def scpCommand = "scp -o StrictHostKeyChecking=no -i $SSH_KEY_FILE ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar ${SSH_USER}@${WEB_SERVER}:${REMOTE_PATH} > ${scpLogFile} 2>&1"
-                        sh scpCommand
+                        sh """
+                        scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar \${SSH_USER}@\${WEB_SERVER}:\${REMOTE_PATH} > ${copyLogFile} 2>&1
+                        """
 
-                        def sshCommand = "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_FILE ${SSH_USER}@${WEB_SERVER} 'sudo systemctl restart moreless_api' > ${sshLogFile} 2>&1"
-                        sh sshCommand
+                        sh """
+                        ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${WEB_SERVER} \\
+                            "sudo systemctl restart moreless_api" > ${copyLogFile} 2>&1
+                        """
 
-                        sh "cat ${scpLogFile}"
-                        sh "cat ${sshLogFile}"
+                        sh "cat ${copyLogFile}"
                     }
                 }
             }
