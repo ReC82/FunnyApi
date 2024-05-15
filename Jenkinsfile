@@ -108,16 +108,20 @@ pipeline {
                         keyFileVariable: 'SSH_KEY_FILE',                        
                         usernameVariable: 'SSH_USER'
                     )]) {
+
+                        def scpLogFile = "${WORKSPACE}/scp.log"
+                        def sshLogFile = "${WORKSPACE}/ssh.log"
+
                         sh 'ssh-keyscan \$WEB_SERVER >> ~/.ssh/known_hosts'
 
-                        sh """
-                        scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar \${SSH_USER}@\${WEB_SERVER}:\${REMOTE_PATH}
-                        """
+                        def scpCommand = "scp -o StrictHostKeyChecking=no -i $SSH_KEY_FILE ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar ${SSH_USER}@${WEB_SERVER}:${REMOTE_PATH} > ${scpLogFile} 2>&1"
+                        sh scpCommand
 
-                        sh """
-                        ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${WEB_SERVER} \\
-                            "sudo systemctl restart moreless_api"
-                        """
+                        def sshCommand = "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_FILE ${SSH_USER}@${WEB_SERVER} 'sudo systemctl restart moreless_api' > ${sshLogFile} 2>&1"
+                        sh sshCommand
+
+                        sh "cat ${scpLogFile}"
+                        sh "cat ${sshLogFile}"
                     }
                 }
             }
