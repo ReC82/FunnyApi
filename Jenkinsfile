@@ -16,7 +16,7 @@ pipeline {
         GIT_CREDENTIALS = 'GitJenkins'
         TARGET_BRANCH = 'main'
         // WEB API CONFIG
-        WEB_CRENDENTIALS_ID = "Production"
+        WEB_CRENDENTIALS_ID = "production.pem"
         REMOTE_PATH="/var/www/api/moreless_api.jar"
         // JMETER CONFIG
         JMETER_TEST_PLAN = "FunnyApi.jmx"
@@ -109,8 +109,6 @@ pipeline {
                         usernameVariable: 'SSH_USER'
                     )]) {
                         sh 'ssh-keyscan \$WEB_SERVER >> ~/.ssh/known_hosts'
-                        sh 'pwd'
-                        echo "Another tRY"
 
                         sh """
                         scp -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE ${WORKSPACE}/MultiToolApi/target/MultiToolApi-0.1.jar \${SSH_USER}@\${WEB_SERVER}:\${REMOTE_PATH}
