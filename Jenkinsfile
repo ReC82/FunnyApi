@@ -121,8 +121,6 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no -i \$SSH_KEY_FILE \${SSH_USER}@\${WEB_SERVER} \\
                             "sudo systemctl restart moreless_api" > ${copyLogFile} 2>&1
                         """
-
-                        sh "cat ${copyLogFile}"
                     }
                 }
             }
